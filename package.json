@@ -1,0 +1,15 @@
+{
+  "name": "code-tray",
+  "version": "1.0.0",
+  "main": "main.js",
+  "repository": "git@github.com:dioggosoares/vscode-tray.git",
+  "author": "Diogo <dioggo.soares@live.com>",
+  "license": "MIT",
+  "scripts": {
+    "start": "electron ."
+  },
+  "dependencies": {
+    "electron": "^10.1.3",
+    "path": "^0.12.7"
+  }
+}
