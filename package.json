@@ -1,15 +1,41 @@
 {
   "name": "code-tray",
   "version": "1.0.0",
+  "description": "A minimal Electron application",
   "main": "main.js",
-  "repository": "git@github.com:dioggosoares/vscode-tray.git",
+  "scripts": {
+    "start": "electron .",
+    "dist:linux": "electron-builder --linux"
+  },
+  "repository": "git@github.com:dioggosoares/code-tray.git",
+  "keywords": [
+    "Electron",
+    "quick",
+    "start",
+    "vscode",
+    "code",
+    "tray"
+  ],
   "author": "Diogo <dioggo.soares@live.com>",
   "license": "MIT",
-  "scripts": {
-    "start": "electron ."
-  },
   "dependencies": {
-    "electron": "^10.1.3",
+    "cross-spawn": "^7.0.3",
+    "electron-store": "^6.0.1",
     "path": "^0.12.7"
+  },
+  "devDependencies": {
+    "electron": "^10.1.3",
+    "electron-builder": "^22.8.1"
+  },
+  "build": {
+    "appId": "com.codexit.code-tray",
+    "linux": {
+      "target": [
+        "deb",
+        "snap",
+        "rpm"
+      ],
+      "category": "Utility"
+    }
   }
 }
