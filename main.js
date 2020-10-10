@@ -1,65 +1,98 @@
 const { resolve, basename } = require('path');
-const { app, Menu, Tray, dialog, MenuItem } = require('electron');
+const {
+  app,
+  Menu,
+  MenuItem,
+  Tray,
+  dialog
+} = require('electron');
 const spawn = require('cross-spawn');
 const Store = require('electron-store');
 
 const schema = {
-    projects: {
-        type: 'string',
-    },
+  projects: {
+    type: 'string',
+  },
 };
 
 const store = new Store({ schema });
-// store.clear();
 
 let tray = null;
 
 function render(){
 
-    if(!tray.isDestroyed()){
-        tray.destroy();
-        tray = new Tray(resolve(__dirname, 'assets', 'iconTemplate.png'));
-    }
+  const storedProjects = store.get('projects');
+  const projects = storedProjects ? JSON.parse(storedProjects) : [];
 
-    const storedProjects = store.get('projects');
-    const projects = storedProjects ? JSON.parse(storedProjects) : [];
-
-    const items = projects.map(project => ({
-        label: project.name,
+  const items = projects.map(project => ({
+    label: project.name,
+    submenu: [
+      {
+        label: 'Abrir no VSCode',
         click: () => {
-            spawn.sync('code', [project.dirPath], { stdio: 'inherit' });
+          spawn.sync('code', [project.dirPath], { stdio: 'inherit' });
         },
-    }));
-    
-    const contextMenu = Menu.buildFromTemplate([
-        ...items,
-        {
-            type: 'separator',
+      },
+      {
+        type: 'separator',
+      },
+      {
+        label: 'Abrir no Atom',
+        click: () => {
+          spawn.sync('atom', [project.dirPath], { stdio: 'inherit' });
         },
-        ]);
-    
-    contextMenu.insert(0, new MenuItem({
-        label: 'Adicionar novo projeto...',
-        click: async () => {
+      },
+      {
+        type: 'separator',
+      },
+      {
+        label: 'Remover',
+        click: () => {
+          store.set('projects', JSON.stringify(projects.filter(item => item.dirPath !== project.dirPath)));
 
-            const path = await dialog.showOpenDialog({ properties: ['openDirectory'] });
-            const dirPath = path.filePaths.join(' ');
-            const name = basename(dirPath);
-            
-            store.set('projects', JSON.stringify([...projects, {
-                dirPath,
-                name,
-            }]));
-
-            render();
+          render();
         },
-    }));
+      },
+    ]
+  }));
 
-    tray.setContextMenu(contextMenu);
+  const contextMenu = Menu.buildFromTemplate([
+    {
+      label: 'Adicionar novo projeto...',
+      click: async () => {
+
+        const path = await dialog.showOpenDialog({ properties: ['openDirectory'] });
+        const dirPath = path.filePaths.join(' ');
+        const name = basename(dirPath);
+
+        store.set('projects', JSON.stringify([...projects, {
+            dirPath,
+            name,
+        }]));
+
+        render();
+      },
+    },
+    {
+      type: 'separator',
+    },
+    ...items,
+    {
+      type: 'separator',
+    },
+    {
+      type: 'normal',
+      label: 'Fechar',
+      role: 'quit',
+      enabled: true,
+    },
+  ]);
+
+  tray.setContextMenu(contextMenu);
 }
 
 app.on('ready', () => {
-    tray = new Tray(resolve(__dirname, 'assets', 'iconTemplate.png'));
+  tray = new Tray(resolve(__dirname, 'assets', 'iconTemplate.png'));
 
-    render();
+  render();
 });

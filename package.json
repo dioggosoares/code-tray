@@ -19,6 +19,7 @@
   "author": "Diogo <dioggo.soares@live.com>",
   "license": "MIT",
   "dependencies": {
+    "@sentry/electron": "^2.0.1",
     "cross-spawn": "^7.0.3",
     "electron-store": "^6.0.1",
     "path": "^0.12.7"
